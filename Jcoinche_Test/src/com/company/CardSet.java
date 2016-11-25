@@ -68,11 +68,28 @@ public class CardSet
         length++;
     }
 
+    public void Take_Card(CardSet destination, int index)
+    {
+        destination.Add_Card(set.get(index));
+        set.remove(index);
+        length--;
+    }
+
     public void Take_Card(CardSet destination)
     {
         destination.Add_Card(set.get(set.size() - 1));
         set.remove(set.size() - 1);
         length--;
+    }
+
+    public Card Take_Card(int index)
+    {
+        Card temp = set.get(index);
+
+        set.remove(index);
+        length--;
+
+        return (temp);
     }
 
     public Card Take_Card()

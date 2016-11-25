@@ -12,15 +12,18 @@ public class Game
 {
     Network_Mockup Network;
 
-    int                 row;
+    int                 donne;
+    int                 trick;
     int                 reshuffle;
     CardSet             deck;
     ArrayList<Player>   players_list;
-    Card                trump;
+    CARD_SUIT           trump;
     int                 contracts[];
+    CardSet             tricks[];
     int                 highest_contract;
     boolean             waiting_player;
-    short               attacking_team;
+    short               taking_team;
+    boolean             capot;
     boolean             coinche;
     boolean             surcoinche;
 
@@ -28,21 +31,22 @@ public class Game
     {
         Network = new Network_Mockup(this);
 
-        row = 0;
+        donne = 0;
         deck = new CardSet();
 //        deck.Shuffle_Set(0);
         players_list = new ArrayList<Player>();
         contracts = new int[2];
+        tricks = new CardSet[8];
         highest_contract = 0;
         waiting_player = false;
-        attacking_team = -1;
+        taking_team = -1;
     }
 
     public void run()
     {
         Wait_Players();
         System.out.print("OPEN DA GAME!\n");
-        while(row < 8 && reshuffle < 10)
+        while(donne < 8 && reshuffle < 10)
         {
             reshuffle = 0;
             Run_Row();
@@ -64,10 +68,12 @@ public class Game
         boolean last_bidding = false;
         boolean bidding = false;
 
+        trick = 0;
+
         if (reshuffle >= 10)
             return;
 
-        System.out.print("Starting row " + (row + 1) + " reshuffled " + reshuffle + " times.\n\n");
+        System.out.print("Starting donne " + (donne + 1) + " reshuffled " + reshuffle + " times.\n\n");
         deck.Fill_Set_32();
         deck.Shuffle_Set(2);
         Distribute_Cards();
@@ -98,15 +104,57 @@ public class Game
                 Handle_Bidding(players_list.get(i), bidding);
         }
 
+        if (contracts[0] == highest_contract)
+            taking_team = 0;
+        else
+            taking_team = 1;
+
         System.out.print("Starting the game.\n");
-        while (true)
-        {
-            if (row == -1)
-                break;
-        }
+        System.out.print("Taking Team : " + taking_team + "\n");
+        System.out.print("Contract : " + highest_contract + " points.\n");
+        System.out.print("Trump : " + trump.toString() + ".\n");
+
+        Main_Game();
 
         Empty_All();
-        row++;
+        donne++;
+    }
+
+    private void Main_Game()
+    {
+        while (trick < 8)
+        {
+            for (int i = 0; i < 4; i++)
+                Handle_Card(players_list.get(i));
+            trick++;
+        }
+    }
+
+    private void Handle_Card(Player current_player)
+    {
+        String input = "";
+        int int_input = 0;
+        boolean first_loop = true;
+
+        System.out.print("\n" + current_player.name + "'s turn to play!\n");
+        System.out.print("Your hand : \n");
+        for (int i = 0; i < current_player.hand.length; i++)
+        {
+            System.out.print((i + 1) + " : " + current_player.hand.set.get(i).value.toString() + " of " + current_player.hand.set.get(i).suit.toString() + "\n");
+        }
+        while (input.isEmpty() || !isValid(input, current_player.hand.length))
+        {
+            if (first_loop == false)
+                System.out.print("Invalid input.\n");
+
+            input = Network.Take_Next_Input();
+
+            if (first_loop == true)
+                first_loop = false;
+        }
+        int_input = Integer.parseInt(input) - 1;
+        tricks[trick] = new CardSet();
+        current_player.hand.Take_Card(tricks[trick], int_input);
     }
 
     private boolean Handle_Bidding(Player current_player, boolean bidding)
@@ -127,6 +175,11 @@ public class Game
 
             if (input.equalsIgnoreCase("Pass"))
                 return (false);
+            else if (input.equalsIgnoreCase("Capot"))
+            {
+                capot = true;
+                return (false);
+            }
             else if (input.equalsIgnoreCase("Coinche"))
             {
                 if (bidding == true)
@@ -161,6 +214,7 @@ public class Game
         int_input = (int)(10 * Math.ceil(int_input / 10));
 
         highest_contract = int_input;
+        trump = String_To_Suit(suit);
         contracts[current_player.team] = int_input;
 
         // Notifies the player and takes the input
@@ -248,6 +302,18 @@ public class Game
         return (false);
     }
 
+    boolean isValid(String input, int length)
+    {
+        int int_input;
+        if (isNumeric(input))
+        {
+            int_input = Integer.parseInt(input);
+            if (int_input > 0 || int_input <= length)
+                return (true);
+        }
+        return (false);
+    }
+
     boolean isValid(String input, String suit)
     {
         int int_input;
@@ -259,6 +325,19 @@ public class Game
                 return (false);
         }
         return (true);
+    }
+
+    CARD_SUIT String_To_Suit(String suit)
+    {
+        if (suit.equalsIgnoreCase("Spade"))
+            return CARD_SUIT.SPADE;
+        if (suit.equalsIgnoreCase("Club"))
+            return CARD_SUIT.CLUB;
+        if (suit.equalsIgnoreCase("Heart"))
+            return CARD_SUIT.HEART;
+        if (suit.equalsIgnoreCase("Diamond"))
+            return CARD_SUIT.DIAMOND;
+        return (null);
     }
 }
 
