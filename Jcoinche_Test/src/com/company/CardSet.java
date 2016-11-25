@@ -62,6 +62,39 @@ public class CardSet
         }
     }
 
+    public Card Get_Strongest_Card(CARD_SUIT trump)
+    {
+        Card tmp = new Card(trump, CARD_VALUE.SEVEN);
+
+        for (int i = 0; i < length; i++)
+        {
+            if (set.get(i).Get_Score(trump) > tmp.Get_Score(trump))
+                tmp = set.get(i);
+        }
+        return (tmp);
+    }
+
+    public Card Get_Strongest_Card(CARD_SUIT suit, CARD_SUIT trump)
+    {
+        Card tmp = new Card(suit, CARD_VALUE.SEVEN);
+
+        for (int i = 0; i < length; i++)
+        {
+            if (set.get(i).suit == suit)
+                if (set.get(i).Get_Score(trump) > tmp.Get_Score(trump))
+                    tmp = set.get(i);
+        }
+        return (tmp);
+    }
+
+    public boolean Has_Suit(CARD_SUIT suit)
+    {
+        for (int i = 0; i < length; i++)
+            if (set.get(i).suit == suit)
+                return (true);
+        return (false);
+    }
+
     public void Add_Card(Card card)
     {
         set.add(card);

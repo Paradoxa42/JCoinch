@@ -18,6 +18,7 @@ public class Game
     CardSet             deck;
     ArrayList<Player>   players_list;
     CARD_SUIT           trump;
+    CARD_SUIT           leading_suit;
     int                 contracts[];
     CardSet             tricks[];
     int                 highest_contract;
@@ -122,12 +123,23 @@ public class Game
 
     private void Main_Game()
     {
+        leading_suit = null;
+        int starting_player = 0;
+
         while (trick < 8)
         {
+            tricks[trick] = new CardSet();
             for (int i = 0; i < 4; i++)
-                Handle_Card(players_list.get(i));
+            {
+                System.out.print("Leading suit : " + leading_suit + "\n");
+                Handle_Card(players_list.get((i + starting_player) % 4));
+            }
+            starting_player = players_list.indexOf(tricks[trick].Get_Strongest_Card(trump).last_owner);
+            System.out.print(players_list.get(starting_player).name + " won the last trick. He will chose the next suit.\n");
+            leading_suit = null;
             trick++;
         }
+        System.out.print("Game ended, counting the scores.\n");
     }
 
     private void Handle_Card(Player current_player)
@@ -142,7 +154,7 @@ public class Game
         {
             System.out.print((i + 1) + " : " + current_player.hand.set.get(i).value.toString() + " of " + current_player.hand.set.get(i).suit.toString() + "\n");
         }
-        while (input.isEmpty() || !isValid(input, current_player.hand.length))
+        while (input.isEmpty() || !isValid(input, current_player.hand.length, current_player))
         {
             if (first_loop == false)
                 System.out.print("Invalid input.\n");
@@ -153,8 +165,10 @@ public class Game
                 first_loop = false;
         }
         int_input = Integer.parseInt(input) - 1;
-        tricks[trick] = new CardSet();
+        current_player.hand.set.get(int_input).last_owner = current_player;
         current_player.hand.Take_Card(tricks[trick], int_input);
+        if (leading_suit == null)
+            leading_suit = tricks[trick].set.get(0).suit;
     }
 
     private boolean Handle_Bidding(Player current_player, boolean bidding)
@@ -302,14 +316,35 @@ public class Game
         return (false);
     }
 
-    boolean isValid(String input, int length)
+    boolean isValid(String input, int length, Player current_player)
     {
         int int_input;
+
         if (isNumeric(input))
         {
-            int_input = Integer.parseInt(input);
+            int_input = Integer.parseInt(input) - 1;
             if (int_input > 0 || int_input <= length)
-                return (true);
+                if (leading_suit != null)
+                {
+                    if (current_player.hand.set.get(int_input).suit == leading_suit)
+                        return (true);
+                    else if (!current_player.hand.Has_Suit(leading_suit))
+                    {
+                         if (current_player.team == tricks[trick].Get_Strongest_Card(trump, trump).last_owner.team)
+                             return (true);
+                         if (current_player.hand.set.get(int_input).suit == trump)
+                         {
+                             if (current_player.hand.set.get(int_input).Get_Score(trump) > tricks[trick].Get_Strongest_Card(trump, trump).Get_Score(trump))
+                                 return (true);
+                             else if (current_player.hand.Get_Strongest_Card(trump, trump).Get_Score(trump) < tricks[trick].Get_Strongest_Card(trump, trump).Get_Score(trump))
+                                 return (true);
+                         }
+                         else if (!current_player.hand.Has_Suit(trump))
+                             return (true);
+                    }
+                }
+                else
+                    return (true);
         }
         return (false);
     }
