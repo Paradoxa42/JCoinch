@@ -21,14 +21,23 @@ public class Network_Mockup implements Runnable
 
     public void run()
     {
+        int i = 0;
         Scanner scanner = new Scanner(System.in);
-        while (waiting_players.size() < 4 && stop_waiting == false)
+        while (waiting_players.size() < 4 && stop_waiting == false && i < 4)
         {
             System.out.print("Enter your name : \n");
             String name = scanner.next();
             waiting_players.add(new Player(name));
             Game.waiting_player = true;
+            i++;
         }
         System.out.print("Stopping looking for players.\n");
+    }
+
+    public String Take_Next_Input()
+    {
+        Scanner scanner = new Scanner(System.in);
+        String input = scanner.nextLine();
+        return (input);
     }
 }

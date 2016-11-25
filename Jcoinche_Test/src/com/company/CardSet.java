@@ -11,10 +11,10 @@ public class CardSet
     ArrayList<Card>    set;
     int             length;
 
-    CardSet(int n_length)
+    CardSet()
     {
         set = new ArrayList<Card>();
-        length = n_length;
+        length = 0;
     }
 
     public void Fill_Set_32()
@@ -28,11 +28,23 @@ public class CardSet
             temp = new Card(suit, value);
             set.add(temp);
             value++;
+            length++;
             if ((i + 1) % 8 == 0)
             {
                 suit++;
                 value = 5;
             }
+        }
+    }
+
+    public void Empty_Set()
+    {
+        int size = set.size();
+
+        for (int i = (size - 1); i >= 0; i--)
+        {
+            set.remove(i);
+            length--;
         }
     }
 
@@ -48,11 +60,28 @@ public class CardSet
             set.set(((i - 1) % length), set.get(swap_value));
             set.set((swap_value), temp);
         }
-       /* for (int i = 0; i < length; i++)
-        {
-            System.out.print(i + " : " + set.get(i).value + " of " + set.get(i).suit + "S\n");
-            if ((i + 1) % 8 == 0 && shuffling_rows == 0)
-                System.out.print('\n');
-        }*/
+    }
+
+    public void Add_Card(Card card)
+    {
+        set.add(card);
+        length++;
+    }
+
+    public void Take_Card(CardSet destination)
+    {
+        destination.Add_Card(set.get(set.size() - 1));
+        set.remove(set.size() - 1);
+        length--;
+    }
+
+    public Card Take_Card()
+    {
+        Card temp = set.get(set.size() - 1);
+
+        set.remove(set.size() - 1);
+        length--;
+
+        return (temp);
     }
 }
