@@ -20,6 +20,7 @@ public class Game
     CARD_SUIT           trump;
     CARD_SUIT           leading_suit;
     int                 contracts[];
+    int                 scores[];
     CardSet             tricks[];
     int                 highest_contract;
     boolean             waiting_player;
@@ -37,6 +38,9 @@ public class Game
 //        deck.Shuffle_Set(0);
         players_list = new ArrayList<Player>();
         contracts = new int[2];
+        scores = new int[2];
+        scores[0] = 0;
+        scores[1] = 0;
         tricks = new CardSet[8];
         highest_contract = 0;
         waiting_player = false;
@@ -126,7 +130,7 @@ public class Game
         leading_suit = null;
         int starting_player = 0;
 
-        while (trick < 8)
+        while (trick < 2)
         {
             tricks[trick] = new CardSet();
             for (int i = 0; i < 4; i++)
@@ -140,6 +144,34 @@ public class Game
             trick++;
         }
         System.out.print("Game ended, counting the scores.\n");
+        Calculate_Scores();
+    }
+
+    private void Calculate_Scores()
+    {
+        int[] round_score = new int[2];
+        int temp = 0;
+        round_score[0] = 0;
+        round_score[1] = 0;
+
+        for (int i = 0; i < trick; i++)
+        {
+            round_score[tricks[i].Get_Strongest_Card(trump).last_owner.team] += tricks[i].Sum_Score(trump);
+        }
+        if ((round_score[taking_team] > contracts[taking_team]) && round_score[taking_team] > round_score[1 - taking_team])
+        {
+            temp = ((scores[taking_team] += (contracts[taking_team] + round_score[taking_team]) * (((coinche) ? 1 : 0) + 1)) * (((surcoinche) ? 1 : 0) + 1));
+            System.out.print("Team " + taking_team + " has fullfilled its contract!\n");
+            System.out.print("Team " + taking_team + " has won " + temp + " points!\n");
+            temp = scores[1 - taking_team] += round_score[1 - taking_team];
+            System.out.print("Team " + (1 - taking_team) + " has won " + temp + " points!\n");
+        }
+        else
+        {
+            temp = ((scores[1 - taking_team] += (contracts[taking_team] + round_score[1 - taking_team]) * (((coinche) ? 1 : 0) + 1)) * (((surcoinche) ? 1 : 0) + 1));
+            System.out.print("Team " + taking_team + " has failed its contract!\n");
+            System.out.print("Team " + (1 - taking_team) + " has won " + temp + " points!\n");
+        }
     }
 
     private void Handle_Card(Player current_player)
@@ -330,7 +362,7 @@ public class Game
                         return (true);
                     else if (!current_player.hand.Has_Suit(leading_suit))
                     {
-                         if (current_player.team == tricks[trick].Get_Strongest_Card(trump, trump).last_owner.team)
+                         if (current_player.team == tricks[trick].Get_Strongest_Card(trump).last_owner.team)
                              return (true);
                          if (current_player.hand.set.get(int_input).suit == trump)
                          {

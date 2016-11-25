@@ -62,6 +62,15 @@ public class CardSet
         }
     }
 
+    public int Sum_Score(CARD_SUIT trump)
+    {
+        int score = 0;
+
+        for (int i = 0; i < length; i++)
+            score += set.get(i).Get_Score(trump);
+        return (score);
+    }
+
     public Card Get_Strongest_Card(CARD_SUIT trump)
     {
         Card tmp = new Card(trump, CARD_VALUE.SEVEN);
