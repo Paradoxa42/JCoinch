@@ -1,0 +1,36 @@
+group 'EPITECH'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.6
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs "../lib"
+    }
+}
+
+dependencies {
+    compile group: 'io.netty', name: 'netty-all', version: '4.1.6.Final'
+    runtime group: 'io.netty', name: 'netty-all', version: '4.1.6.Final'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+sourceSets {
+    main.java.srcDir 'src'
+    main.resources.srcDir '../lib'
+}
+
+build {
+    doLast() {
+        print("Build client finished\n")
+    }
+}
+
+jar {
+    manifest {
+        attributes('Main-Class': 'JCoincheClient',
+                "Class-Path": configurations.compile.collect { it.getPath() }.join(' '))
+    }
+}

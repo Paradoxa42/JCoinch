@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Class-Path: /home/legald_t/.gradle/caches/modules-2/files-2.1/io.netty
+ /netty-all/4.1.6.Final/6cb4393b29248778f0bcf89118c949304cec8bb8/netty
+ -all-4.1.6.Final.jar
+Main-Class: JCoincheClient
+
