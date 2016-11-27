@@ -59,6 +59,7 @@ public class JCoincheServerHandler extends SimpleChannelInboundHandler<String> {
         }
         else {
             JCoincheServer.listGame.get(Integer.parseInt(parts[0])).Network.message = parts[1].replace("|", "");
+            JCoincheServer.listGame.get(Integer.parseInt(parts[0])).pChannels.put(parts[1].replace("|", ""), ctx.channel());
         }
     }
 

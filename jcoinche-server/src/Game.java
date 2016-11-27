@@ -2,6 +2,9 @@
 
 import sun.nio.ch.Net;
 import io.netty.channel.Channel;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import java.util.ArrayList;
 
@@ -14,6 +17,8 @@ public class Game implements Runnable
     Network_Mockup Network;
 
     ArrayList<Channel>  channels = new ArrayList<Channel>();
+    Map<String, Channel> pChannels = new HashMap<String, Channel>();
+
     int                 donne;
     int                 trick;
     int                 reshuffle;
@@ -37,6 +42,9 @@ public class Game implements Runnable
         }
     }
 
+    private void Write_to_player(String player, String msg) {
+        pChannels.get(player).writeAndFlush(msg + "\r");
+    }
     public Game()
     {
         Network = new Network_Mockup(this);
@@ -189,10 +197,10 @@ public class Game implements Runnable
         boolean first_loop = true;
 
         Write_to_all("\n" + current_player.name + "'s turn to play!\n");
-        Write_to_all("Your hand : \n");
+        Write_to_player(current_player.name, "Your hand : \n");
         for (int i = 0; i < current_player.hand.length; i++)
         {
-            System.out.print((i + 1) + " : " + current_player.hand.set.get(i).value.toString() + " of " + current_player.hand.set.get(i).suit.toString() + "\n");
+            Write_to_player(current_player.name, (i + 1) + " : " + current_player.hand.set.get(i).value.toString() + " of " + current_player.hand.set.get(i).suit.toString() + "\n");
         }
         while (input.isEmpty() || !isValid(input, current_player.hand.length, current_player))
         {
@@ -300,10 +308,10 @@ public class Game implements Runnable
         }
         for (int i = 0; i < 4; i++)
         {
-            Write_to_all(players_list.get(i).name + "'s hand : \n");
+            Write_to_player(players_list.get(i).name, players_list.get(i).name + "'s hand : \n");
             for (int j = 0; j < players_list.get(i).hand.set.size(); j++)
             {
-                Write_to_all((j + 1) + " : " + players_list.get(i).hand.set.get(j).value + " of " +  players_list.get(i).hand.set.get(j).suit + "\n");
+                Write_to_player(players_list.get(i).name, (j + 1) + " : " + players_list.get(i).hand.set.get(j).value + " of " +  players_list.get(i).hand.set.get(j).suit + "\n");
             }
             Write_to_all("\n");
         }
